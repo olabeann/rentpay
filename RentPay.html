@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>렌트페이 - 월세 카드 결제 서비스</title>
+<style>
+  :root {
+    --primary: #1A3C6E;
+    --primary-light: #2B5BA8;
+    --primary-lighter: #EBF0F9;
+    --accent: #3B82F6;
+    --accent-hover: #2563EB;
+    --success: #059669;
+    --success-bg: #ECFDF5;
+    --warning: #D97706;
+    --warning-bg: #FFFBEB;
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-500: #64748B;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1E293B;
+    --gray-900: #0F172A;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Mobile container ── */
+  .mobile-wrap {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #fff;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ── Top Nav ── */
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 20px;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topnav-logo {
+    font-size: 20px; font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+  .topnav-logo span { color: var(--accent); }
+  .topnav-back {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 14px; color: var(--gray-600);
+    cursor: pointer; border: none; background: none; padding: 4px 0;
+  }
+  .topnav-back svg { width: 18px; height: 18px; }
+  .topnav-title { font-size: 16px; font-weight: 700; color: var(--gray-800); }
+  .topnav-right { width: 60px; display: flex; justify-content: flex-end; }
+
+  /* ── Bottom Tab Bar ── */
+  .bottombar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: #fff;
+    border-top: 1px solid var(--gray-200);
+    display: flex; align-items: flex-end;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+    height: 64px;
+  }
+  .tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-end;
+    padding: 0 0 10px; cursor: pointer; border: none; background: none;
+    color: var(--gray-400); font-size: 10px; font-weight: 500; gap: 4px;
+    transition: color .15s; height: 100%;
+  }
+  .tab-item.active { color: var(--primary); }
+  .tab-item svg { width: 22px; height: 22px; }
+  .tab-fab {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-end;
+    padding: 0 0 10px; cursor: pointer; border: none; background: none;
+    color: var(--primary); font-size: 10px; font-weight: 600;
+    height: 100%; position: relative; gap: 4px;
+  }
+  .tab-fab-circle {
+    position: absolute; bottom: 28px;
+    width: 52px; height: 52px;
+    background: var(--primary); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(26,60,110,0.35);
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    display: block; width: 100%;
+    background: var(--primary);
+    color: #fff; border: none;
+    padding: 15px 20px;
+    border-radius: var(--radius-md);
+    font-size: 16px; font-weight: 700;
+    cursor: pointer; text-align: center;
+    transition: background .15s, transform .1s;
+    letter-spacing: -0.2px;
+  }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+  .btn-secondary {
+    display: block; width: 100%;
+    background: #fff; color: var(--primary);
+    border: 1.5px solid var(--primary);
+    padding: 13px 20px;
+    border-radius: var(--radius-md);
+    font-size: 16px; font-weight: 700;
+    cursor: pointer; text-align: center;
+    transition: background .15s;
+  }
+  .btn-secondary:hover { background: var(--primary-lighter); }
+
+  .btn-kakao {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; background: #FEE500; color: #191919;
+    border: none; padding: 14px 20px;
+    border-radius: var(--radius-md);
+    font-size: 16px; font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-outline-sm {
+    background: #fff; color: var(--gray-600);
+    border: 1px solid var(--gray-300);
+    padding: 7px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-outline-sm:hover { border-color: var(--primary); color: var(--primary); }
+
+  .btn-danger {
+    background: var(--danger-bg); color: var(--danger);
+    border: 1.5px solid var(--danger);
+    padding: 13px 20px; border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+  }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.2px;
+  }
+  .badge-pending { background: var(--warning-bg); color: var(--warning); }
+  .badge-approved { background: var(--primary-lighter); color: var(--primary); }
+  .badge-rejected { background: var(--danger-bg); color: var(--danger); }
+  .badge-paid { background: var(--success-bg); color: var(--success); }
+  .badge-ready { background: #EFF6FF; color: #1D4ED8; }
+
+  /* ── Form ── */
+  .form-section {
+    padding: 20px;
+    border-bottom: 8px solid var(--gray-50);
+  }
+  .form-section-title {
+    font-size: 14px; font-weight: 800; color: var(--primary);
+    letter-spacing: 0.3px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .form-section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--primary-lighter);
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--gray-700); margin-bottom: 6px;
+  }
+  .form-label .required { color: var(--danger); margin-left: 2px; }
+  .form-input {
+    display: block; width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    font-size: 15px; color: var(--gray-800);
+    background: #fff; outline: none;
+    transition: border-color .15s;
+    font-family: inherit;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--gray-300); }
+  .form-input-row { display: flex; gap: 8px; }
+  .form-input-row .form-input { flex: 1; }
+
+  /* ── Cards ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  .card-clickable {
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+  }
+  .card-clickable:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+  /* ── Info row ── */
+  .info-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 14px;
+    gap: 12px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .label { color: var(--gray-500); white-space: nowrap; flex-shrink: 0; }
+  .info-row .value { color: var(--gray-800); font-weight: 600; text-align: right; }
+
+  /* ── Section padding ── */
+  .section { padding: 20px; }
+  .section + .section { padding-top: 0; }
+
+  /* ── Divider ── */
+  .divider { height: 8px; background: var(--gray-50); margin: 0; }
+
+  /* ── Amount display ── */
+  .amount-highlight {
+    font-size: 28px; font-weight: 800;
+    color: var(--primary); letter-spacing: -1px;
+  }
+
+  /* ── Status step ── */
+  .status-steps {
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 16px; gap: 0;
+  }
+  .step-item {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex: 1;
+  }
+  .step-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    transition: all .3s;
+  }
+  .step-circle.done { background: var(--primary); color: #fff; }
+  .step-circle.active { background: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(59,130,246,0.2); }
+  .step-circle.waiting { background: var(--gray-200); color: var(--gray-400); }
+  .step-label { font-size: 10px; font-weight: 600; color: var(--gray-500); text-align: center; }
+  .step-label.active { color: var(--accent); }
+  .step-label.done { color: var(--primary); }
+  .step-line { flex: 1; height: 2px; background: var(--gray-200); margin: 0; position: relative; top: -14px; }
+  .step-line.done { background: var(--primary); }
+
+  /* ── Alert box ── */
+  .alert {
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .alert-info { background: #EFF6FF; color: #1E40AF; border-left: 3px solid #3B82F6; }
+  .alert-danger { background: var(--danger-bg); color: #991B1B; border-left: 3px solid var(--danger); }
+  .alert-success { background: var(--success-bg); color: #065F46; border-left: 3px solid var(--success); }
+
+  /* ── File upload ── */
+  .file-upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .file-upload-area:hover { border-color: var(--accent); background: #F8FAFF; }
+  .file-upload-area.has-file { border-color: var(--success); border-style: solid; background: var(--success-bg); }
+
+  /* ── Checkbox ── */
+  .checkbox-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 4px 0;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 18px; height: 18px; margin-top: 1px;
+    accent-color: var(--primary); flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checkbox-row label { font-size: 13px; color: var(--gray-600); cursor: pointer; line-height: 1.4; }
+  .checkbox-row label a { color: var(--accent); text-decoration: none; }
+
+  /* ── Modal overlay ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 500;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 24px 36px;
+    width: 100%; max-width: 430px;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle {
+    width: 40px; height: 4px; background: var(--gray-200);
+    border-radius: 2px; margin: 0 auto 20px;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+    background: var(--gray-900); color: #fff;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 600;
+    z-index: 999; opacity: 0;
+    transition: opacity .2s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── Scrollable content (above bottom bar) ── */
+  .page-content { padding-bottom: 80px; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 60px 24px;
+  }
+  .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state-title { font-size: 17px; font-weight: 700; color: var(--gray-700); margin-bottom: 8px; }
+  .empty-state-desc { font-size: 14px; color: var(--gray-400); line-height: 1.6; }
+
+  /* ── Summary amount card ── */
+  .amount-card {
+    background: linear-gradient(135deg, var(--primary) 0%, #2B5BA8 100%);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin: 16px 20px;
+  }
+  .amount-card-label { font-size: 12px; opacity: 0.7; margin-bottom: 4px; }
+  .amount-card-value { font-size: 30px; font-weight: 800; letter-spacing: -1px; }
+  .amount-card-sub { font-size: 12px; opacity: 0.8; margin-top: 8px; }
+
+  /* ── Request list item ── */
+  .request-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .request-item:hover { background: var(--gray-50); }
+  .request-item-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .request-item-title { font-size: 15px; font-weight: 700; color: var(--gray-800); }
+  .request-item-meta { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+  /* ── Payment breakdown ── */
+  .payment-breakdown {
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    padding: 16px;
+  }
+  .pb-row {
+    display: flex; justify-content: space-between;
+    font-size: 14px; padding: 6px 0;
+  }
+  .pb-row .pb-label { color: var(--gray-500); }
+  .pb-row .pb-value { font-weight: 600; color: var(--gray-800); }
+  .pb-total {
+    border-top: 1px solid var(--gray-200);
+    margin-top: 8px; padding-top: 12px;
+    font-size: 16px; font-weight: 800; color: var(--primary);
+  }
+
+  /* ── Mypage ── */
+  .mypage-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--primary-lighter);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: var(--primary);
+  }
+  .menu-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    font-size: 15px; color: var(--gray-700);
+    transition: background .1s;
+  }
+  .menu-item:hover { background: var(--gray-50); }
+  .menu-item svg { width: 16px; height: 16px; color: var(--gray-400); }
+
+  /* ── Login ── */
+  .login-hero {
+    background: linear-gradient(160deg, var(--primary) 0%, #2B5BA8 100%);
+    padding: 48px 24px 40px;
+    color: #fff; text-align: center;
+  }
+  .login-logo { font-size: 36px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+  .login-tagline { font-size: 14px; opacity: 0.8; }
+
+  .divider-text {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12px; color: var(--gray-400); margin: 16px 0;
+  }
+  .divider-text::before, .divider-text::after {
+    content: ''; flex: 1; height: 1px; background: var(--gray-200);
+  }
+
+  /* ── Success screen ── */
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--success-bg);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .success-icon svg { width: 40px; height: 40px; color: var(--success); }
+
+  /* scroll */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
+  /* toggle switch */
+  .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .toggle input { display: none; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: var(--gray-300); border-radius: 12px;
+    transition: .2s; cursor: pointer;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px;
+    transition: .2s; box-shadow: var(--shadow-sm);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--primary); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: LOGIN
+══════════════════════════════════════════ -->
+<div class="page active" id="page-login">
+<div class="mobile-wrap">
+  <div class="login-hero">
+    <div class="login-logo">렌트<span style="color:#93C5FD">페이</span></div>
+    <div class="login-tagline">월세를 카드로, 포인트는 내 것으로</div>
+  </div>
+  <div style="padding: 32px 24px; display: flex; flex-direction: column; gap: 12px;">
+    <div class="form-group">
+      <label class="form-label">이메일</label>
+      <input class="form-input" type="email" placeholder="이메일 주소 입력" id="login-email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">비밀번호</label>
+      <input class="form-input" type="password" placeholder="비밀번호 입력" id="login-pw">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">로그인</button>
+
+    <div class="divider-text">또는 SNS로 간편 로그인</div>
+
+    <button class="btn-kakao" onclick="doLogin()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2C5.582 2 2 4.895 2 8.5c0 2.31 1.463 4.344 3.688 5.563L5 17l4.188-2.75c.265.03.535.05.812.05 4.418 0 8-2.895 8-6.5S14.418 2 10 2z" fill="#191919"/>
+      </svg>
+      카카오로 시작하기
+    </button>
+
+    <div style="text-align:center; margin-top:8px;">
+      <span style="font-size:13px; color:var(--gray-400)">계정이 없으신가요?</span>
+      <button onclick="navigate('signup')" style="background:none;border:none;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;margin-left:4px;">회원가입</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: SIGNUP
+══════════════════════════════════════════ -->
+<div class="page" id="page-signup">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <button class="topnav-back" onclick="navigate('login')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      뒤로
+    </button>
+    <span class="topnav-title">회원가입</span>
+    <div class="topnav-right"></div>
+  </div>
+  <div class="page-content" style="padding:24px;">
+    <div class="form-group">
+      <label class="form-label">이름 <span class="required">*</span></label>
+      <input class="form-input" type="text" placeholder="실명 입력">
+    </div>
+    <div class="form-group">
+      <label class="form-label">이메일 <span class="required">*</span></label>
+      <input class="form-input" type="email" placeholder="이메일 주소">
+    </div>
+    <div class="form-group">
+      <label class="form-label">비밀번호 <span class="required">*</span></label>
+      <input class="form-input" type="password" placeholder="8자 이상, 영문+숫자 조합">
+    </div>
+    <div class="form-group">
+      <label class="form-label">비밀번호 확인 <span class="required">*</span></label>
+      <input class="form-input" type="password" placeholder="비밀번호 재입력">
+    </div>
+    <div class="form-group">
+      <label class="form-label">연락처 <span class="required">*</span></label>
+      <div class="form-input-row">
+        <input class="form-input" type="tel" placeholder="010-0000-0000" style="flex:1">
+        <button class="btn-outline-sm" style="flex-shrink:0; padding: 0 16px;">인증요청</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">본인인증</label>
+      <button class="btn-secondary" onclick="showToast('본인인증 서비스는 오픈 예정입니다')">📱 휴대폰 본인인증</button>
+    </div>
+    <div style="border:1px solid var(--gray-200); border-radius:var(--radius-md); padding:14px; margin-bottom:20px; display:flex;flex-direction:column;gap:10px;">
+      <div class="checkbox-row">
+        <input type="checkbox" id="agree-all" onclick="toggleAll(this)">
+        <label for="agree-all" style="font-weight:700; color:var(--gray-800);">전체 동의</label>
+      </div>
+      <div style="height:1px;background:var(--gray-100);"></div>
+      <div class="checkbox-row">
+        <input type="checkbox" class="agree-item">
+        <label>[필수] 서비스 이용약관 <a href="#">보기</a></label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" class="agree-item">
+        <label>[필수] 개인정보 처리방침 <a href="#">보기</a></label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" class="agree-item">
+        <label>[선택] 마케팅 수신 동의</label>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">가입 완료</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: HOME (MAIN)
+══════════════════════════════════════════ -->
+<div class="page" id="page-home">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <div class="topnav-logo">렌트<span>페이</span></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="showToast('알림이 없습니다')" style="background:none;border:none;cursor:pointer;padding:4px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <!-- Hero CTA -->
+    <div style="padding:24px 20px 0;">
+      <div style="background:linear-gradient(135deg,#1A3C6E 0%,#2B5BA8 60%,#3B82F6 100%);border-radius:var(--radius-lg);padding:24px;color:#fff;position:relative;overflow:hidden;">
+        <div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.06);border-radius:50%;"></div>
+        <div style="position:absolute;right:20px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,0.04);border-radius:50%;"></div>
+        <div style="font-size:12px;opacity:0.75;margin-bottom:4px;letter-spacing:0.3px;">SMART RENT PAYMENT</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px;">월세를 카드로 내고<br>혜택을 누리세요</div>
+        <div style="font-size:13px;opacity:0.8;margin-bottom:20px;">포인트 적립 · 무이자 할부 · 간편 결제</div>
+        <button onclick="navigate('new-request')" class="btn-primary" style="background:#fff;color:var(--primary);padding:12px;font-size:14px;">
+          월세 결제 요청하기 →
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Summary -->
+    <div style="padding:20px;">
+      <div style="font-size:14px;font-weight:700;color:var(--gray-700);margin-bottom:12px;">내 결제 현황</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div onclick="navigate('requests')" style="background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px;cursor:pointer;">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px;">전체 요청</div>
+          <div style="font-size:22px;font-weight:800;color:var(--gray-800);">3</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">건</div>
+        </div>
+        <div onclick="navigate('requests')" style="background:var(--warning-bg);border:1px solid #FDE68A;border-radius:var(--radius-md);padding:14px;cursor:pointer;">
+          <div style="font-size:11px;color:var(--warning);margin-bottom:4px;">승인 대기</div>
+          <div style="font-size:22px;font-weight:800;color:var(--warning);">1</div>
+          <div style="font-size:11px;color:var(--warning);margin-top:2px;">건</div>
+        </div>
+        <div onclick="navigate('requests')" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius-md);padding:14px;cursor:pointer;">
+          <div style="font-size:11px;color:#1D4ED8;margin-bottom:4px;">결제 가능</div>
+          <div style="font-size:22px;font-weight:800;color:#1D4ED8;">1</div>
+          <div style="font-size:11px;color:#1D4ED8;margin-top:2px;">건</div>
+        </div>
+        <div onclick="navigate('requests')" style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:var(--radius-md);padding:14px;cursor:pointer;">
+          <div style="font-size:11px;color:var(--success);margin-bottom:4px;">결제 완료</div>
+          <div style="font-size:22px;font-weight:800;color:var(--success);">1</div>
+          <div style="font-size:11px;color:var(--success);margin-top:2px;">건</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Service Guide -->
+    <div style="padding:20px;">
+      <div style="font-size:14px;font-weight:700;color:var(--gray-700);margin-bottom:12px;">이용 방법</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--primary);">1</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);">결제 요청서 작성</div><div style="font-size:13px;color:var(--gray-500);margin-top:2px;">임대인 정보와 월세 금액을 입력해요</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--primary);">2</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);">관리자 검토·승인</div><div style="font-size:13px;color:var(--gray-500);margin-top:2px;">1영업일 내 검토 후 승인 알림을 보내요</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--primary);">3</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);">카드 결제</div><div style="font-size:13px;color:var(--gray-500);margin-top:2px;">원하는 카드로 수수료 2.5% 부담 후 결제해요</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-lighter);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--primary);">4</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);">임대인 계좌 이체</div><div style="font-size:13px;color:var(--gray-500);margin-top:2px;">희망일에 임대인 계좌로 자동 이체돼요</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Recent -->
+    <div style="padding:20px 20px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:700;color:var(--gray-700);">최근 요청서</div>
+        <button onclick="navigate('requests')" style="background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;font-weight:600;">전체보기</button>
+      </div>
+    </div>
+    <div class="request-item" onclick="navigate('request-detail', {id:1})">
+      <div class="request-item-header">
+        <span class="request-item-title">홍길동 임대인 · 550,000원</span>
+        <span class="badge badge-ready">결제 가능</span>
+      </div>
+      <div class="request-item-meta">요청일 2025.01.10 · 희망 이체일 2025.01.25</div>
+    </div>
+    <div class="request-item" onclick="navigate('request-detail', {id:2})">
+      <div class="request-item-header">
+        <span class="request-item-title">이영희 임대인 · 700,000원</span>
+        <span class="badge badge-pending">승인 대기</span>
+      </div>
+      <div class="request-item-meta">요청일 2025.01.08 · 희망 이체일 2025.01.28</div>
+    </div>
+  </div>
+
+  <!-- Bottom Tab -->
+  <div class="bottombar">
+    <button class="tab-item active" onclick="setTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      홈
+    </button>
+    <button class="tab-item" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      요청서
+    </button>
+    <button class="tab-fab" onclick="navigate('new-request')">
+      <div class="tab-fab-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span>요청하기</span>
+    </button>
+    <button class="tab-item" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      결제
+    </button>
+    <button class="tab-item" onclick="navigate('mypage')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      마이페이지
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: NEW REQUEST (결제 요청서 작성)
+══════════════════════════════════════════ -->
+<div class="page" id="page-new-request">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <button class="topnav-back" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      뒤로
+    </button>
+    <span class="topnav-title">결제 요청서 작성</span>
+    <div class="topnav-right"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Progress -->
+    <div style="padding:16px 20px 0;">
+      <div style="display:flex;gap:4px;">
+        <div id="step-bar-1" style="flex:1;height:4px;background:var(--primary);border-radius:2px;transition:background .3s;"></div>
+        <div id="step-bar-2" style="flex:1;height:4px;background:var(--gray-200);border-radius:2px;transition:background .3s;"></div>
+        <div id="step-bar-3" style="flex:1;height:4px;background:var(--gray-200);border-radius:2px;transition:background .3s;"></div>
+      </div>
+      <div style="font-size:12px;color:var(--gray-400);margin-top:6px;" id="step-label-text">1단계 · 신청자 정보</div>
+    </div>
+
+    <!-- Step 1: 신청자 -->
+    <div id="form-step-1">
+      <div class="form-section">
+        <div class="form-section-title">신청자 정보</div>
+        <div class="form-group">
+          <label class="form-label">이름 <span class="required">*</span></label>
+          <input class="form-input" type="text" placeholder="실명 입력" value="김민준">
+        </div>
+        <div class="form-group">
+          <label class="form-label">연락처 <span class="required">*</span></label>
+          <input class="form-input" type="tel" placeholder="010-0000-0000" value="010-1234-5678">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">임대 정보</div>
+        <div class="form-group">
+          <label class="form-label">임대인 이름 <span class="required">*</span></label>
+          <input class="form-input" type="text" placeholder="임대인 실명">
+        </div>
+        <div class="form-group">
+          <label class="form-label">임대인 계좌번호 <span class="required">*</span></label>
+          <input class="form-input" type="text" placeholder="은행명 + 계좌번호">
+        </div>
+        <div class="form-group">
+          <label class="form-label">월세 금액 <span class="required">*</span></label>
+          <input class="form-input" type="number" placeholder="0" id="rent-amount" oninput="updateFee()">
+          <div style="font-size:12px;color:var(--gray-400);margin-top:4px;" id="fee-preview"></div>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px 24px;">
+        <button class="btn-primary" onclick="goStep(2)">다음 단계</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 송금/주소 -->
+    <div id="form-step-2" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-title">송금 희망일</div>
+        <div class="form-group">
+          <label class="form-label">송금 희망일 <span class="required">*</span></label>
+          <input class="form-input" type="date" id="transfer-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">송금 희망 시간 <span class="required">*</span></label>
+          <select class="form-input">
+            <option value="">시간 선택</option>
+            <option>오전 9:00</option>
+            <option>오전 11:00</option>
+            <option>오후 2:00</option>
+            <option>오후 4:00</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">주소 정보</div>
+        <div class="form-group">
+          <label class="form-label">임대 주소 <span class="required">*</span></label>
+          <button class="btn-secondary" onclick="showToast('주소 검색 서비스 연동 예정')" style="margin-bottom:8px;padding:11px;font-size:14px;">
+            🔍 주소 검색
+          </button>
+          <input class="form-input" type="text" placeholder="상세 주소 입력">
+        </div>
+      </div>
+
+      <div style="padding:0 20px;display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="goStep(1)" style="flex:1;padding:13px;font-size:14px;">이전</button>
+        <button class="btn-primary" onclick="goStep(3)" style="flex:2;padding:13px;font-size:14px;">다음 단계</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 서류/동의 -->
+    <div id="form-step-3" style="display:none;">
+      <div class="form-section">
+        <div class="form-section-title">계약서 첨부</div>
+        <div class="form-group">
+          <label class="form-label">임대차 계약서 <span class="required">*</span></label>
+          <div class="file-upload-area" id="file-drop-area" onclick="handleFileClick()">
+            <div id="file-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gray-300)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-500);">파일 선택 또는 드래그</div>
+              <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">PDF, JPG, PNG · 최대 10MB</div>
+            </div>
+            <div id="file-selected" style="display:none;">
+              <div style="font-size:24px;margin-bottom:6px;">✅</div>
+              <div style="font-size:14px;font-weight:700;color:var(--success);">계약서_2025.pdf</div>
+              <div style="font-size:12px;color:var(--success);margin-top:2px;">업로드 완료</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">개인정보 동의</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="checkbox-row">
+            <input type="checkbox" id="agree-privacy" onchange="checkAgreements()">
+            <label for="agree-privacy">[필수] 개인정보 수집·이용 동의 <a href="#" style="color:var(--accent);">내용보기</a></label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="agree-third" onchange="checkAgreements()">
+            <label for="agree-third">[필수] 제3자 정보 제공 동의 <a href="#" style="color:var(--accent);">내용보기</a></label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="agree-marketing">
+            <label for="agree-marketing">[선택] 마케팅 정보 수신 동의</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-info alert" style="margin: 0 20px 16px;">
+        수수료 2.5%가 월세 금액에 추가되어 결제됩니다. 수수료는 고객 부담이며, 임대인에게는 월세 원금이 이체됩니다.
+      </div>
+
+      <div style="padding:0 20px 24px;display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="goStep(2)" style="flex:1;padding:13px;font-size:14px;">이전</button>
+        <button class="btn-primary" id="submit-btn" onclick="submitRequest()" style="flex:2;padding:13px;font-size:14px;" disabled>요청서 제출</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: REQUESTS LIST
+══════════════════════════════════════════ -->
+<div class="page" id="page-requests">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <div class="topnav-logo">렌트<span>페이</span></div>
+    <span class="topnav-title">결제 요청서</span>
+    <div class="topnav-right">
+      <button onclick="navigate('new-request')" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;">+ 신청</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--gray-200);scrollbar-width:none;" id="filter-tabs">
+      <button class="filter-tab active" onclick="filterRequests('all', this)" style="flex-shrink:0;padding:12px 16px;border:none;background:none;font-size:13px;font-weight:600;color:var(--primary);border-bottom:2px solid var(--primary);cursor:pointer;">전체 (3)</button>
+      <button class="filter-tab" onclick="filterRequests('pending', this)" style="flex-shrink:0;padding:12px 16px;border:none;background:none;font-size:13px;font-weight:600;color:var(--gray-400);border-bottom:2px solid transparent;cursor:pointer;">승인 대기 (1)</button>
+      <button class="filter-tab" onclick="filterRequests('approved', this)" style="flex-shrink:0;padding:12px 16px;border:none;background:none;font-size:13px;font-weight:600;color:var(--gray-400);border-bottom:2px solid transparent;cursor:pointer;">결제 가능 (1)</button>
+      <button class="filter-tab" onclick="filterRequests('paid', this)" style="flex-shrink:0;padding:12px 16px;border:none;background:none;font-size:13px;font-weight:600;color:var(--gray-400);border-bottom:2px solid transparent;cursor:pointer;">결제 완료 (1)</button>
+    </div>
+
+    <!-- List -->
+    <div id="requests-list">
+      <div class="request-item" data-status="approved" onclick="navigate('request-detail', {id:1})">
+        <div class="request-item-header">
+          <span class="request-item-title">홍길동</span>
+          <span class="badge badge-ready">결제 가능</span>
+        </div>
+        <div style="font-size:18px;font-weight:800;color:var(--primary);margin:6px 0 4px;letter-spacing:-0.5px;">550,000원</div>
+        <div class="request-item-meta">요청일 2025.01.10 · 희망 이체일 2025.01.25</div>
+        <div class="request-item-meta" style="margin-top:2px;">서울시 마포구 망원동 123-45 · 501호</div>
+      </div>
+      <div class="request-item" data-status="pending" onclick="navigate('request-detail', {id:2})">
+        <div class="request-item-header">
+          <span class="request-item-title">이영희</span>
+          <span class="badge badge-pending">승인 대기</span>
+        </div>
+        <div style="font-size:18px;font-weight:800;color:var(--primary);margin:6px 0 4px;letter-spacing:-0.5px;">700,000원</div>
+        <div class="request-item-meta">요청일 2025.01.08 · 희망 이체일 2025.01.28</div>
+        <div class="request-item-meta" style="margin-top:2px;">서울시 성동구 성수동 456-7 · 302호</div>
+      </div>
+      <div class="request-item" data-status="paid" onclick="navigate('request-detail', {id:3})">
+        <div class="request-item-header">
+          <span class="request-item-title">박철수</span>
+          <span class="badge badge-paid">결제 완료</span>
+        </div>
+        <div style="font-size:18px;font-weight:800;color:var(--primary);margin:6px 0 4px;letter-spacing:-0.5px;">800,000원</div>
+        <div class="request-item-meta">요청일 2024.12.20 · 이체 완료 2024.12.25</div>
+        <div class="request-item-meta" style="margin-top:2px;">서울시 강남구 역삼동 789-1 · 1001호</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <button class="tab-item" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈
+    </button>
+    <button class="tab-item active" onclick="setTab('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>요청서
+    </button>
+    <button class="tab-fab" onclick="navigate('new-request')">
+      <div class="tab-fab-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span>요청하기</span>
+    </button>
+    <button class="tab-item" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>결제
+    </button>
+    <button class="tab-item" onclick="navigate('mypage')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>마이페이지
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: REQUEST DETAIL
+══════════════════════════════════════════ -->
+<div class="page" id="page-request-detail">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <button class="topnav-back" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      뒤로
+    </button>
+    <span class="topnav-title">요청서 상세</span>
+    <div class="topnav-right"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Status progress -->
+    <div style="padding:16px 20px 0;">
+      <div class="status-steps" id="detail-steps">
+        <div class="step-item">
+          <div class="step-circle done">✓</div>
+          <div class="step-label done">작성 완료</div>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step-item" id="step-approved-item">
+          <div class="step-circle active" id="step-approved-circle">2</div>
+          <div class="step-label active" id="step-approved-label">승인 완료</div>
+        </div>
+        <div class="step-line" id="step-line-2"></div>
+        <div class="step-item">
+          <div class="step-circle waiting" id="step-pay-circle">3</div>
+          <div class="step-label" id="step-pay-label">카드 결제</div>
+        </div>
+        <div class="step-line" id="step-line-3"></div>
+        <div class="step-item">
+          <div class="step-circle waiting" id="step-done-circle">4</div>
+          <div class="step-label" id="step-done-label">이체 완료</div>
+        </div>
+      </div>
+
+      <!-- Dynamic status alert -->
+      <div id="detail-status-alert" class="alert alert-info" style="margin-bottom:12px;">
+        승인이 완료되었습니다. 카드 결제를 진행해 주세요.
+      </div>
+    </div>
+
+    <!-- Rejection reason (conditionally shown) -->
+    <div id="rejection-box" style="display:none;padding:0 20px 12px;">
+      <div class="alert alert-danger">
+        <div style="font-weight:700;margin-bottom:4px;">반려 사유</div>
+        계약서 내용과 입력 금액이 일치하지 않습니다. 계약서를 다시 확인 후 재신청해 주세요.
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">임대인 정보</div>
+      <div id="detail-landlord" class="card" style="padding:14px 16px;">
+        <div class="info-row"><span class="label">임대인</span><span class="value">홍길동</span></div>
+        <div class="info-row"><span class="label">계좌</span><span class="value">국민 123-456-789012</span></div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0;">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">결제 정보</div>
+      <div class="payment-breakdown">
+        <div class="pb-row">
+          <span class="pb-label">월세 금액</span>
+          <span class="pb-value" id="detail-rent">550,000원</span>
+        </div>
+        <div class="pb-row">
+          <span class="pb-label">수수료 (2.5%)</span>
+          <span class="pb-value" id="detail-fee">13,750원</span>
+        </div>
+        <div class="pb-row pb-total">
+          <span>최종 결제 금액</span>
+          <span id="detail-total">563,750원</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">기본 정보</div>
+      <div class="card" style="padding:14px 16px;">
+        <div class="info-row"><span class="label">신청자</span><span class="value">김민준</span></div>
+        <div class="info-row"><span class="label">연락처</span><span class="value">010-1234-5678</span></div>
+        <div class="info-row"><span class="label">주소</span><span class="value" style="max-width:60%;text-align:right;">서울시 마포구 망원동 123-45 501호</span></div>
+        <div class="info-row"><span class="label">희망 이체일</span><span class="value">2025.01.25</span></div>
+        <div class="info-row"><span class="label">희망 시간</span><span class="value">오후 2:00</span></div>
+        <div class="info-row"><span class="label">요청일</span><span class="value">2025.01.10</span></div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0;">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">첨부 계약서</div>
+      <div class="card" style="padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:#FEF2F2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📄</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:var(--gray-800);">계약서_2025.pdf</div>
+            <div style="font-size:12px;color:var(--gray-400);">2.4 MB</div>
+          </div>
+          <button class="btn-outline-sm" onclick="showToast('파일 다운로드 중...')">보기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pay button (shown when approved) -->
+    <div class="section" style="padding-top:0;" id="pay-btn-section">
+      <button class="btn-primary" onclick="navigate('payment', {id:1})" style="font-size:16px;padding:16px;">
+        💳 카드 결제하기
+      </button>
+    </div>
+    <div class="section" style="padding-top:0;display:none;" id="reject-re-section">
+      <button class="btn-secondary" onclick="navigate('new-request')">요청서 재작성</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: PAYMENT
+══════════════════════════════════════════ -->
+<div class="page" id="page-payment">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <button class="topnav-back" onclick="navigate('request-detail', {id:1})">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      뒤로
+    </button>
+    <span class="topnav-title">카드 결제</span>
+    <div class="topnav-right"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Amount card -->
+    <div class="amount-card">
+      <div class="amount-card-label">최종 결제 금액</div>
+      <div class="amount-card-value">563,750원</div>
+      <div class="amount-card-sub">홍길동 임대인 · 2025년 1월 월세</div>
+    </div>
+
+    <div class="section">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">결제 내역</div>
+      <div class="payment-breakdown">
+        <div class="pb-row"><span class="pb-label">월세 금액</span><span class="pb-value">550,000원</span></div>
+        <div class="pb-row"><span class="pb-label">서비스 수수료 (2.5%)</span><span class="pb-value">13,750원</span></div>
+        <div class="pb-row pb-total"><span>합계</span><span>563,750원</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div style="font-size:13px;font-weight:700;color:var(--gray-500);margin-bottom:10px;letter-spacing:0.3px;">결제 수단</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="card-select">
+        <div onclick="selectCard(this)" class="card" style="padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;border:2px solid var(--primary);">
+          <div style="width:40px;height:26px;background:linear-gradient(135deg,#1A3C6E,#3B82F6);border-radius:4px;"></div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:700;">신한카드 ****1234</div><div style="font-size:12px;color:var(--gray-400);">대표 카드</div></div>
+          <div style="width:18px;height:18px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div onclick="selectCard(this)" class="card" style="padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:26px;background:linear-gradient(135deg,#DC2626,#F87171);border-radius:4px;"></div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:700;">KB카드 ****5678</div><div style="font-size:12px;color:var(--gray-400);"></div></div>
+          <div style="width:18px;height:18px;border:1.5px solid var(--gray-300);border-radius:50%;"></div>
+        </div>
+        <button onclick="showToast('카드 추가 기능 오픈 예정')" class="btn-outline-sm" style="align-self:flex-start;margin-top:4px;">+ 카드 추가</button>
+      </div>
+    </div>
+
+    <div class="alert-info alert" style="margin:0 20px 16px;">
+      결제 후 취소는 당일 오후 5시 이전에만 가능합니다. 희망 이체일에 임대인 계좌로 자동 이체됩니다.
+    </div>
+
+    <div class="section" style="padding-top:0;">
+      <button class="btn-primary" onclick="processPayment()" style="font-size:16px;padding:16px;">
+        563,750원 결제하기
+      </button>
+      <div style="text-align:center;margin-top:12px;">
+        <div style="font-size:11px;color:var(--gray-400);">결제 진행 시 이용약관에 동의한 것으로 간주됩니다</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: PAYMENT SUCCESS
+══════════════════════════════════════════ -->
+<div class="page" id="page-payment-success">
+<div class="mobile-wrap" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;">
+  <div style="text-align:center;width:100%;">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:8px;letter-spacing:-0.5px;">결제 완료!</div>
+    <div style="font-size:14px;color:var(--gray-500);margin-bottom:32px;line-height:1.6;">
+      결제가 정상적으로 완료되었습니다.<br>희망 이체일에 임대인 계좌로 이체됩니다.
+    </div>
+
+    <div class="card" style="padding:20px;text-align:left;margin-bottom:24px;">
+      <div class="info-row"><span class="label">결제 금액</span><span class="value" style="color:var(--primary);font-size:16px;">563,750원</span></div>
+      <div class="info-row"><span class="label">결제 카드</span><span class="value">신한카드 ****1234</span></div>
+      <div class="info-row"><span class="label">결제 일시</span><span class="value">2025.01.10 14:32</span></div>
+      <div class="info-row"><span class="label">임대인 이체 예정일</span><span class="value">2025.01.25</span></div>
+    </div>
+
+    <button class="btn-primary" onclick="navigate('home')" style="margin-bottom:12px;">홈으로 돌아가기</button>
+    <button class="btn-secondary" onclick="navigate('requests')">요청서 목록 보기</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+  PAGE: MYPAGE
+══════════════════════════════════════════ -->
+<div class="page" id="page-mypage">
+<div class="mobile-wrap">
+  <div class="topnav">
+    <div class="topnav-logo">렌트<span>페이</span></div>
+    <span class="topnav-title">마이페이지</span>
+    <div class="topnav-right"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Profile -->
+    <div style="padding:24px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--gray-100);">
+      <div class="mypage-avatar">김</div>
+      <div>
+        <div style="font-size:18px;font-weight:800;color:var(--gray-900);">김민준</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-top:2px;">minjekim@email.com</div>
+        <div style="font-size:12px;color:var(--gray-400);">010-1234-5678</div>
+      </div>
+      <button class="btn-outline-sm" style="margin-left:auto;" onclick="showToast('프로필 수정 화면')">수정</button>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:16px 20px;gap:12px;border-bottom:8px solid var(--gray-50);">
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--primary);">3</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">전체 요청</div>
+      </div>
+      <div style="text-align:center;border-left:1px solid var(--gray-100);border-right:1px solid var(--gray-100);">
+        <div style="font-size:20px;font-weight:800;color:var(--success);">1</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">결제 완료</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--gray-800);">800,000</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">총 결제액(원)</div>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <div style="border-bottom:8px solid var(--gray-50);">
+      <div style="padding:12px 20px 4px;font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:0.5px;">내 활동</div>
+      <div class="menu-item" onclick="navigate('requests')">
+        <span>결제 요청서 내역</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-item" onclick="showToast('결제 카드 관리')">
+        <span>결제 카드 관리</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div style="border-bottom:8px solid var(--gray-50);">
+      <div style="padding:12px 20px 4px;font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:0.5px;">알림 설정</div>
+      <div class="menu-item">
+        <span>승인 결과 알림</span>
+        <label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label>
+      </div>
+      <div class="menu-item">
+        <span>이체 완료 알림</span>
+        <label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label>
+      </div>
+      <div class="menu-item">
+        <span>마케팅 알림</span>
+        <label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label>
+      </div>
+    </div>
+
+    <div>
+      <div style="padding:12px 20px 4px;font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:0.5px;">계정</div>
+      <div class="menu-item" onclick="showToast('고객센터: 1588-0000')">
+        <span>고객센터</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-item" onclick="showToast('서비스 버전: v1.0.0 (MVP)')">
+        <span>앱 정보</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="menu-item" onclick="navigate('login')" style="color:var(--danger);">
+        <span>로그아웃</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <button class="tab-item" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>홈
+    </button>
+    <button class="tab-item" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>요청서
+    </button>
+    <button class="tab-fab" onclick="navigate('new-request')">
+      <div class="tab-fab-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span>요청하기</span>
+    </button>
+    <button class="tab-item" onclick="navigate('requests')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>결제
+    </button>
+    <button class="tab-item active" onclick="setTab('mypage')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>마이페이지
+    </button>
+  </div>
+</div>
+</div>
+
+<script>
+  // ── Mock data ──
+  const mockRequests = {
+    1: { status: 'approved', landlord: '홍길동', account: '국민 123-456-789012', rent: 550000, date: '2025.01.10', transferDate: '2025.01.25', address: '서울시 마포구 망원동 123-45 501호' },
+    2: { status: 'pending', landlord: '이영희', account: '신한 987-654-321098', rent: 700000, date: '2025.01.08', transferDate: '2025.01.28', address: '서울시 성동구 성수동 456-7 302호' },
+    3: { status: 'paid', landlord: '박철수', account: '우리 555-444-333222', rent: 800000, date: '2024.12.20', transferDate: '2024.12.25', address: '서울시 강남구 역삼동 789-1 1001호' },
+  };
+
+  let currentPage = 'login';
+  let currentStep = 1;
+  let fileUploaded = false;
+
+  // ── Navigation ──
+  function navigate(page, params) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+    if (page === 'home') {
+      document.getElementById('page-home').classList.add('active');
+      currentPage = 'home';
+    } else if (page === 'login') {
+      document.getElementById('page-login').classList.add('active');
+      currentPage = 'login';
+    } else if (page === 'signup') {
+      document.getElementById('page-signup').classList.add('active');
+    } else if (page === 'new-request') {
+      currentStep = 1;
+      goStep(1);
+      document.getElementById('page-new-request').classList.add('active');
+    } else if (page === 'requests') {
+      document.getElementById('page-requests').classList.add('active');
+    } else if (page === 'request-detail') {
+      loadDetail(params && params.id ? params.id : 1);
+      document.getElementById('page-request-detail').classList.add('active');
+    } else if (page === 'payment') {
+      document.getElementById('page-payment').classList.add('active');
+    } else if (page === 'payment-success') {
+      document.getElementById('page-payment-success').classList.add('active');
+    } else if (page === 'mypage') {
+      document.getElementById('page-mypage').classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function setTab(tab) {
+    if (tab === 'home') navigate('home');
+    else if (tab === 'requests') navigate('requests');
+    else if (tab === 'mypage') navigate('mypage');
+  }
+
+  // ── Login ──
+  function doLogin() {
+    navigate('home');
+    showToast('로그인 성공! 환영합니다 👋');
+  }
+
+  // ── Signup toggleAll ──
+  function toggleAll(el) {
+    document.querySelectorAll('.agree-item').forEach(c => c.checked = el.checked);
+  }
+
+  // ── Step form ──
+  function goStep(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById('form-step-' + i).style.display = (i === n) ? 'block' : 'none';
+      document.getElementById('step-bar-' + i).style.background = i <= n ? 'var(--primary)' : 'var(--gray-200)';
+    });
+    const labels = ['1단계 · 신청자 정보', '2단계 · 송금 및 주소', '3단계 · 서류 및 동의'];
+    document.getElementById('step-label-text').textContent = labels[n-1];
+    currentStep = n;
+    if (n === 2) {
+      const d = new Date(); d.setDate(d.getDate() + 15);
+      document.getElementById('transfer-date').value = d.toISOString().split('T')[0];
+    }
+  }
+
+  function updateFee() {
+    const amt = parseInt(document.getElementById('rent-amount').value) || 0;
+    const fee = Math.round(amt * 0.025);
+    const total = amt + fee;
+    if (amt > 0) {
+      document.getElementById('fee-preview').textContent =
+        `수수료 ${fee.toLocaleString()}원 포함 → 총 ${total.toLocaleString()}원`;
+    } else {
+      document.getElementById('fee-preview').textContent = '';
+    }
+  }
+
+  function handleFileClick() {
+    fileUploaded = !fileUploaded;
+    document.getElementById('file-empty').style.display = fileUploaded ? 'none' : 'block';
+    document.getElementById('file-selected').style.display = fileUploaded ? 'block' : 'none';
+    document.getElementById('file-drop-area').classList.toggle('has-file', fileUploaded);
+    checkAgreements();
+  }
+
+  function checkAgreements() {
+    const p = document.getElementById('agree-privacy').checked;
+    const t = document.getElementById('agree-third').checked;
+    document.getElementById('submit-btn').disabled = !(p && t && fileUploaded);
+  }
+
+  function submitRequest() {
+    showToast('요청서가 제출되었습니다! ✅');
+    setTimeout(() => navigate('requests'), 800);
+  }
+
+  // ── Filter ──
+  function filterRequests(status, btn) {
+    document.querySelectorAll('.filter-tab').forEach(b => {
+      b.style.color = 'var(--gray-400)';
+      b.style.borderBottomColor = 'transparent';
+      b.style.fontWeight = '600';
+    });
+    btn.style.color = 'var(--primary)';
+    btn.style.borderBottomColor = 'var(--primary)';
+
+    const items = document.querySelectorAll('#requests-list .request-item');
+    items.forEach(item => {
+      if (status === 'all') { item.style.display = 'block'; return; }
+      const s = item.getAttribute('data-status');
+      item.style.display = (s === status) ? 'block' : 'none';
+    });
+  }
+
+  // ── Detail ──
+  function loadDetail(id) {
+    const d = mockRequests[id] || mockRequests[1];
+    const fee = Math.round(d.rent * 0.025);
+    const total = d.rent + fee;
+
+    document.getElementById('detail-rent').textContent = d.rent.toLocaleString() + '원';
+    document.getElementById('detail-fee').textContent = fee.toLocaleString() + '원';
+    document.getElementById('detail-total').textContent = total.toLocaleString() + '원';
+    document.getElementById('detail-landlord').innerHTML = `
+      <div class="info-row"><span class="label">임대인</span><span class="value">${d.landlord}</span></div>
+      <div class="info-row"><span class="label">계좌</span><span class="value">${d.account}</span></div>
+    `;
+
+    const payBtn = document.getElementById('pay-btn-section');
+    const rejectBox = document.getElementById('rejection-box');
+    const rejectRe = document.getElementById('reject-re-section');
+    const alert = document.getElementById('detail-status-alert');
+
+    payBtn.style.display = 'none';
+    rejectBox.style.display = 'none';
+    rejectRe.style.display = 'none';
+
+    if (d.status === 'approved') {
+      alert.className = 'alert alert-info';
+      alert.textContent = '승인이 완료되었습니다. 카드 결제를 진행해 주세요.';
+      payBtn.style.display = 'block';
+      setDetailSteps(2, false);
+    } else if (d.status === 'pending') {
+      alert.className = 'alert alert-info';
+      alert.style.background = 'var(--warning-bg)';
+      alert.style.color = '#92400E';
+      alert.style.borderLeftColor = 'var(--warning)';
+      alert.textContent = '관리자가 요청서를 검토 중입니다. 1영업일 내 결과를 알려드립니다.';
+      setDetailSteps(1, false);
+    } else if (d.status === 'paid') {
+      alert.className = 'alert alert-success';
+      alert.textContent = '결제가 완료되었습니다. 희망 이체일에 임대인 계좌로 이체됩니다.';
+      setDetailSteps(3, true);
+    } else if (d.status === 'rejected') {
+      alert.className = 'alert alert-danger';
+      alert.textContent = '요청서가 반려되었습니다. 사유를 확인 후 재신청해 주세요.';
+      rejectBox.style.display = 'block';
+      rejectRe.style.display = 'block';
+      setDetailSteps(0, false);
+    }
+  }
+
+  function setDetailSteps(activeStep, paid) {
+    const c2 = document.getElementById('step-approved-circle');
+    const l2 = document.getElementById('step-approved-label');
+    const c3 = document.getElementById('step-pay-circle');
+    const l3 = document.getElementById('step-pay-label');
+    const c4 = document.getElementById('step-done-circle');
+    const l4 = document.getElementById('step-done-label');
+    const line2 = document.getElementById('step-line-2');
+    const line3 = document.getElementById('step-line-3');
+
+    c2.className = 'step-circle'; l2.className = 'step-label';
+    c3.className = 'step-circle'; l3.className = 'step-label';
+    c4.className = 'step-circle'; l4.className = 'step-label';
+    line2.className = 'step-line'; line3.className = 'step-line';
+
+    if (activeStep >= 2) { c2.className += ' done'; l2.className += ' done'; c2.textContent = '✓'; line2.className += ' done'; }
+    else { c2.className += ' waiting'; c2.textContent = '2'; }
+
+    if (activeStep >= 3) { c3.className += ' done'; l3.className += ' done'; c3.textContent = '✓'; line3.className += ' done'; }
+    else if (activeStep === 2) { c3.className += ' active'; l3.className += ' active'; c3.textContent = '3'; }
+    else { c3.className += ' waiting'; c3.textContent = '3'; }
+
+    if (paid) { c4.className += ' active'; l4.className += ' active'; c4.textContent = '4'; }
+    else { c4.className += ' waiting'; c4.textContent = '4'; }
+  }
+
+  // ── Payment ──
+  function selectCard(el) {
+    document.querySelectorAll('#card-select .card').forEach(c => {
+      c.style.border = '1px solid var(--gray-200)';
+      const dot = c.querySelector('div[style*="border-radius:50%"]');
+      if (dot) dot.style.background = '';
+    });
+    el.style.border = '2px solid var(--primary)';
+  }
+
+  function processPayment() {
+    showToast('결제 처리 중...');
+    setTimeout(() => { navigate('payment-success'); }, 1200);
+  }
+
+  // ── Toast ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
